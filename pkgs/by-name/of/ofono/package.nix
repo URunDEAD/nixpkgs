@@ -32,6 +32,11 @@ stdenv.mkDerivation (finalAttrs: {
 
   postPatch = ''
     patchShebangs tools/provisiontool
+
+    # The provisioning database is only looked up at a hard-coded FHS path,
+    # while the build installs it to $out/share/ofono/provision.db.
+    substituteInPlace src/provisiondb.c \
+      --replace-fail '"/usr/share/ofono/provision.db"' "\"$out/share/ofono/provision.db\""
   '';
 
   strictDeps = true;
@@ -56,6 +61,9 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.strings.withFeatureAs true "systemdunitdir" "${placeholder "out"}/lib/systemd/system")
     (lib.strings.enableFeature true "external-ell")
     "--sysconfdir=/etc"
+    # STORAGEDIR (APNs/contexts, LTE attach settings, SMS assembly and the
+    # SMS tx queue) must be writable; it defaults to $out/var/lib/ofono.
+    "--localstatedir=/var"
   ];
 
   installFlags = [ "sysconfdir=${placeholder "out"}/etc" ];
