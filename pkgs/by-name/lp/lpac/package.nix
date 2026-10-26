@@ -9,10 +9,13 @@
   curl,
   libmbim,
   libqmi,
+  libqrtr-glib,
   withDrivers ? true,
   withLibeuicc ? true,
   withMbim ? stdenv.hostPlatform.isLinux,
   withQmi ? stdenv.hostPlatform.isLinux,
+  # QMI over QRTR, for Qualcomm SoCs whose modem has no /dev/cdc-wdm* device.
+  withQmiQrtr ? stdenv.hostPlatform.isLinux,
   nix-update-script,
 }:
 
@@ -49,6 +52,7 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeBool "LPAC_DYNAMIC_LIBEUICC" withLibeuicc)
     (lib.cmakeBool "LPAC_WITH_APDU_MBIM" withMbim)
     (lib.cmakeBool "LPAC_WITH_APDU_QMI" withQmi)
+    (lib.cmakeBool "LPAC_WITH_APDU_QMI_QRTR" withQmiQrtr)
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     (lib.cmakeFeature "CMAKE_OSX_ARCHITECTURES" stdenv.hostPlatform.darwinArch)
@@ -66,7 +70,8 @@ stdenv.mkDerivation (finalAttrs: {
     pcsclite
   ]
   ++ optional withMbim libmbim
-  ++ optional withQmi libqmi;
+  ++ optional (withQmi || withQmiQrtr) libqmi
+  ++ optional withQmiQrtr libqrtr-glib;
 
   postInstall = ''
     mkdir -p $out/share/doc/lpac
