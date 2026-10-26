@@ -30,6 +30,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
+    libsForQt5.qtgraphicaleffects
     libsForQt5.qtquickcontrols2
     libsForQt5.qtlocation
     libsForQt5.qtsensors
