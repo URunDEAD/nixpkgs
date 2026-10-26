@@ -36,7 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   postPatch = ''
-    substituteInPlace translate.c --replace-fail '/lib/firmware/' '/run/current-system/sw/share/uncompressed-firmware'
+    substituteInPlace translate.c --replace-fail '"/lib/firmware/"' '"/run/current-system/sw/share/uncompressed-firmware/"'
   '';
 
   installFlags = [ "prefix=$(out)" ];
